@@ -1,271 +1,126 @@
-:root {
-  --yellow: #ffd84d;
-  --yellow2: #ffe98c;
-  --ink: #121212;
-  --card: rgba(255, 255, 255, 0.75);
-  --cardBorder: rgba(0, 0, 0, 0.1);
+const pages = [
+  document.getElementById("page-1"),
+  document.getElementById("page-2"),
+  document.getElementById("page-3"),
+];
+
+const teaBtn = document.getElementById("tea");
+const teaLine = document.getElementById("tea-line");
+
+const next1 = document.getElementById("next-1");
+const next2 = document.getElementById("next-2");
+const back2 = document.getElementById("back-2");
+const back3 = document.getElementById("back-3");
+
+const sparkleLine = document.getElementById("sparkle-line");
+const finalLine = document.getElementById("final-line");
+
+const confettiBtn = document.getElementById("confetti");
+
+// page switching
+function showPage(index) {
+  pages.forEach((p, i) => p.classList.toggle("active", i === index));
+  const decor = pages[index].getAttribute("data-decor") || "simple";
+  document.body.setAttribute("data-decor", decor);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-* {
-  box-sizing: border-box;
+next1.addEventListener("click", () => showPage(1));
+next2.addEventListener("click", () => {
+  showPage(2);
+  sparkleLine.textContent = "Glow up noted. Proud friend moment.";
+});
+back2.addEventListener("click", () => showPage(0));
+back3.addEventListener("click", () => showPage(1));
+
+// tea interaction
+const teaLines = [
+  "Tea refilled. Proceed with the drama.",
+  "Sipping tea and causing chaos, respectfully.",
+  "Ok bestie energy activated.",
+  "Tea check. Now click continue.",
+];
+
+teaBtn.addEventListener("click", () => {
+  const pick = teaLines[Math.floor(Math.random() * teaLines.length)];
+  teaLine.textContent = pick;
+});
+
+// confetti
+const canvas = document.getElementById("fx");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(window.innerWidth * dpr);
+  canvas.height = Math.floor(window.innerHeight * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+let confetti = [];
+let animId = null;
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
 }
 
-html,
-body {
-  height: 100%;
-}
+function launchConfetti() {
+  confetti = [];
+  const count = 160;
 
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: var(--yellow);
-  color: var(--ink);
-  overflow-x: hidden;
-}
-
-.stage {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
-
-.page {
-  width: 100%;
-  max-width: 980px;
-  display: none;
-}
-
-.page.active {
-  display: block;
-  animation: fadeIn 420ms ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  for (let i = 0; i < count; i++) {
+    confetti.push({
+      x: random(0, window.innerWidth),
+      y: random(-40, -10),
+      r: random(3, 7),
+      vx: random(-2.2, 2.2),
+      vy: random(2.5, 6.5),
+      spin: random(-0.2, 0.2),
+      a: random(0, Math.PI * 2),
+      life: random(80, 140),
+    });
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+
+  finalLine.textContent = "Correct answer accepted.";
+
+  if (animId) cancelAnimationFrame(animId);
+  tick();
 }
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--cardBorder);
-  border-radius: 22px;
-  padding: 26px;
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(8px);
-}
+function tick() {
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-.card.wide {
-  padding: 28px;
-}
+  confetti.forEach((p) => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.a += p.spin;
+    p.life -= 1;
 
-h1,
-h2 {
-  margin: 0 0 10px 0;
-  letter-spacing: -0.02em;
-}
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.a);
+    ctx.globalAlpha = Math.max(0, Math.min(1, p.life / 120));
 
-h1 {
-  font-size: clamp(34px, 5vw, 54px);
-}
+    // rectangles only, no fixed colors, so use a light/dark alternating fill
+    ctx.fillStyle = p.life % 2 === 0 ? "rgba(0,0,0,0.75)" : "rgba(255,255,255,0.85)";
+    ctx.fillRect(-p.r, -p.r, p.r * 2, p.r * 1.6);
 
-h2 {
-  font-size: clamp(26px, 4vw, 40px);
-}
+    ctx.restore();
+  });
 
-p {
-  margin: 10px 0;
-  font-size: 18px;
-  line-height: 1.55;
-}
+  confetti = confetti.filter((p) => p.life > 0 && p.y < window.innerHeight + 30);
 
-.lead {
-  font-size: 20px;
-  font-weight: 650;
-}
-
-.tiny {
-  margin-top: 12px;
-  font-size: 14px;
-  opacity: 0.75;
-}
-
-.actions {
-  margin-top: 18px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.btn {
-  border: 0;
-  border-radius: 14px;
-  padding: 12px 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-.btn.primary {
-  background: #111;
-  color: white;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
-}
-
-.btn.ghost {
-  background: rgba(255, 255, 255, 0.55);
-  color: #111;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.grid {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
-}
-
-@media (min-width: 860px) {
-  .grid {
-    grid-template-columns: 0.95fr 1.05fr;
-    align-items: center;
+  if (confetti.length > 0) {
+    animId = requestAnimationFrame(tick);
+  } else {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    animId = null;
   }
 }
 
-.photoWrap {
-  width: 100%;
-}
+confettiBtn.addEventListener("click", launchConfetti);
 
-.photo {
-  width: 100%;
-  max-height: 420px;
-  object-fit: cover;
-  border-radius: 18px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.photoHint {
-  display: none;
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px dashed rgba(0, 0, 0, 0.25);
-  font-weight: 650;
-}
-
-.bigList {
-  margin: 18px 0 0 0;
-  padding-left: 24px;
-  font-size: clamp(22px, 4vw, 34px);
-  font-weight: 800;
-}
-
-.bigList li {
-  margin: 10px 0;
-}
-
-.pop {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transform-origin: left center;
-  animation: popIn 450ms ease;
-}
-
-@keyframes popIn {
-  from {
-    transform: scale(0.92);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Background decor */
-.bg-decor {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.stage,
-#fx {
-  position: relative;
-  z-index: 1;
-}
-
-.sun {
-  position: absolute;
-  top: -120px;
-  right: -120px;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fff6c2, #ffbf00 60%, #ff8a00 100%);
-  filter: blur(0.2px);
-  opacity: 0.9;
-  transform: rotate(8deg);
-  box-shadow: 0 30px 80px rgba(255, 140, 0, 0.25);
-  display: none;
-}
-
-.flowers {
-  position: absolute;
-  inset: 0;
-  display: none;
-}
-
-.flower {
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 50% 50%, #ffdc4a 0 18%, transparent 19%),
-    radial-gradient(circle at 20% 30%, #ffffff 0 28%, transparent 29%),
-    radial-gradient(circle at 80% 30%, #ffffff 0 28%, transparent 29%),
-    radial-gradient(circle at 20% 80%, #ffffff 0 28%, transparent 29%),
-    radial-gradient(circle at 80% 80%, #ffffff 0 28%, transparent 29%);
-  opacity: 0.85;
-  transform: rotate(12deg);
-}
-
-.f1 { left: 18px; bottom: 18px; }
-.f2 { left: 100px; bottom: 40px; transform: rotate(-8deg); }
-.f3 { right: 26px; bottom: 22px; transform: rotate(16deg); }
-.f4 { right: 110px; bottom: 52px; transform: rotate(-14deg); }
-.f5 { left: 50%; bottom: 10px; transform: translateX(-50%) rotate(6deg); }
-
-body[data-decor="simple"] .sun,
-body[data-decor="simple"] .flowers {
-  display: none;
-}
-
-body[data-decor="garden"] .sun,
-body[data-decor="garden"] .flowers {
-  display: block;
-}
-
-/* Canvas layer */
-#fx {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
+// start decor mode
+showPage(0);
