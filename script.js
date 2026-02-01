@@ -137,4 +137,135 @@ p {
 
 @media (min-width: 860px) {
   .grid {
+    grid-template-columns: 0.95fr 1.05fr;
+    align-items: center;
+  }
+}
 
+.photoWrap {
+  width: 100%;
+}
+
+.photo {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.photoHint {
+  display: none;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  font-weight: 650;
+}
+
+.bigList {
+  margin: 18px 0 0 0;
+  padding-left: 24px;
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 800;
+}
+
+.bigList li {
+  margin: 10px 0;
+}
+
+.pop {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transform-origin: left center;
+  animation: popIn 450ms ease;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Background decor */
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage,
+#fx {
+  position: relative;
+  z-index: 1;
+}
+
+.sun {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff6c2, #ffbf00 60%, #ff8a00 100%);
+  filter: blur(0.2px);
+  opacity: 0.9;
+  transform: rotate(8deg);
+  box-shadow: 0 30px 80px rgba(255, 140, 0, 0.25);
+  display: none;
+}
+
+.flowers {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.flower {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 50%, #ffdc4a 0 18%, transparent 19%),
+    radial-gradient(circle at 20% 30%, #ffffff 0 28%, transparent 29%),
+    radial-gradient(circle at 80% 30%, #ffffff 0 28%, transparent 29%),
+    radial-gradient(circle at 20% 80%, #ffffff 0 28%, transparent 29%),
+    radial-gradient(circle at 80% 80%, #ffffff 0 28%, transparent 29%);
+  opacity: 0.85;
+  transform: rotate(12deg);
+}
+
+.f1 { left: 18px; bottom: 18px; }
+.f2 { left: 100px; bottom: 40px; transform: rotate(-8deg); }
+.f3 { right: 26px; bottom: 22px; transform: rotate(16deg); }
+.f4 { right: 110px; bottom: 52px; transform: rotate(-14deg); }
+.f5 { left: 50%; bottom: 10px; transform: translateX(-50%) rotate(6deg); }
+
+body[data-decor="simple"] .sun,
+body[data-decor="simple"] .flowers {
+  display: none;
+}
+
+body[data-decor="garden"] .sun,
+body[data-decor="garden"] .flowers {
+  display: block;
+}
+
+/* Canvas layer */
+#fx {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
